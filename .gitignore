@@ -1,3 +1,6 @@
 .DS_Store
 scripts/.DS_Store
-tests
+tests/**/.DS_Store
+tests/**/output*/
+tests/**/tmp*/
+tests/inital_test_quast/data/test_quast_out/
