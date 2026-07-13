@@ -4,3 +4,11 @@ tests/**/.DS_Store
 tests/**/output*/
 tests/**/tmp*/
 tests/inital_test_quast/data/test_quast_out/
+tests/**/quast_out/
+tests/**/processing_files/
+tests/**/compiled_files/
+tests/**/logs/
+tests/**/slurm/
+tests/**/*SLURM-ARRAY-READY.txt
+tests/**/sample_list.txt
+tests/**/local_fasta_manifest.txt

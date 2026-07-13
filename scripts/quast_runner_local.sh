@@ -6,6 +6,7 @@ SLURM_array_list="$2"
 main_output_folder_input="$3"
 config="$4"
 reference_fasta="${5:-}"
+qc_parameters="${6:-}"
 
 function config_value {
     local key="$1"
@@ -67,4 +68,5 @@ parallel -j "$local_jobs" --colsep '__@__' 'bash -c '"'"'run_quast "$@"'"'"' _ {
 
 #AGGREGATOR
 slurm_array_scripts="$(config_value "slurm_array_scripts" "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)")"
-bash "$slurm_array_scripts/quast_aggregator.sh" "$main_output_folder_input"
+qc_parameters="${qc_parameters:-$(config_value "qc_parameters" "$slurm_array_scripts/QC_parameters.yml")}"
+bash "$slurm_array_scripts/quast_aggregator.sh" "$main_output_folder_input" "$qc_parameters"

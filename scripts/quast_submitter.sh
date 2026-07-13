@@ -19,6 +19,7 @@ function usage {
     echo "  -m: Mode of operation ('SLURM' or 'LOCAL'),        default = 'SLURM'"
     echo "  -j: Jobname,                                       default = 'quast_runner'"
     echo "  -c: config                                         default = scripts/config.env"
+    echo "  -p: QC parameters YAML                             default = scripts/QC_parameters.yml"
     echo "  -r: Reference FASTA for reference-based QUAST metrics"
     echo
     echo "avoid spaces, dots, and special characters in sample names to prevent issues with file handling"
@@ -40,7 +41,7 @@ function config_value {
     fi
 }
 
-while getopts "i:s:o:m:j:c:r:" opt; do
+while getopts "i:s:o:m:j:c:p:r:" opt; do
   case $opt in
     i) input_folder="$OPTARG" ;;
     s) sample_list="$OPTARG" ;;
@@ -48,6 +49,7 @@ while getopts "i:s:o:m:j:c:r:" opt; do
     m) mode="$OPTARG" ;;
     j) jobname="$OPTARG" ;;
     c) config="$OPTARG";;
+    p) qc_parameters="$OPTARG";;
     r) reference_fasta="$OPTARG";;
     \?) echo "Invalid option -$OPTARG" >&2 ;;
   esac
@@ -57,6 +59,7 @@ mode="${mode:-SLURM}"
 jobname="${jobname:-quast_runner}"
 config="${config:-$script_dir/config.env}"
 reference_fasta="${reference_fasta:-}"
+qc_parameters="${qc_parameters:-}"
 
 if [[ -z "$input_folder" ]] || [[ -z "$output_dir" ]]; then
     usage
@@ -72,6 +75,13 @@ fi
 
 if [[ ! -f "$config" ]]; then
     echo "found no config file: $config"
+    exit 1
+fi
+
+qc_parameters="${qc_parameters:-$(config_value "qc_parameters" "$script_dir/QC_parameters.yml")}"
+
+if [[ ! -f "$qc_parameters" ]]; then
+    echo "found no QC parameters file: $qc_parameters"
     exit 1
 fi
 
@@ -152,10 +162,10 @@ if [[ "$mode" == "SLURM" ]]; then
         sbatch --array="${array_start}-${array_end}%${Slurm_CalcRunParallel}" -J "$jobname" "$slurm_script_location/quast_runner.sh" "$input_folder" "$slurm_array_ready_file" "$index_set" "$output_dir" "$config" "$reference_fasta"
     done
 
-    echo "sbatch --dependency=singleton -J $jobname $slurm_script_location/quast_aggregator.sh $output_dir"
-    sbatch --dependency=singleton -J "$jobname" "$slurm_script_location/quast_aggregator.sh" "$output_dir"
+    echo "sbatch --dependency=singleton -J $jobname $slurm_script_location/quast_aggregator.sh $output_dir $qc_parameters"
+    sbatch --dependency=singleton -J "$jobname" "$slurm_script_location/quast_aggregator.sh" "$output_dir" "$qc_parameters"
 fi
 
 if [[ "$mode" == "LOCAL" ]]; then
-    bash "$slurm_script_location/quast_runner_local.sh" "$input_folder" "$slurm_array_ready_file" "$output_dir" "$config" "$reference_fasta"
+    bash "$slurm_script_location/quast_runner_local.sh" "$input_folder" "$slurm_array_ready_file" "$output_dir" "$config" "$reference_fasta" "$qc_parameters"
 fi

@@ -1,0 +1,26 @@
+# Reusable QC parameter thresholds for assembly quality checks.
+
+pass_criteria:
+  total_length_bp:
+    min: 4300000
+    max: 6200000
+
+  gc_percent:
+    min: 49.5
+    max: 51.5
+
+  contigs_500bp_or_longer:
+    max: 300
+
+  n50_bp:
+    min: 50000
+
+  ns_per_100_kbp:
+    expected: 0
+
+  duplication_ratio:
+    max: 1.05
+
+  genome_fraction_percent:
+    min: 95
+    applies_when: "using a close reference"
