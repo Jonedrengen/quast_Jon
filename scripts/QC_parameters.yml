@@ -2,12 +2,12 @@
 
 pass_criteria:
   total_length_bp:
-    min: 4200000
-    max: 6400000
+    min: 4300000
+    max: 6200000
 
   gc_percent:
-    min: 48.5
-    max: 52.5
+    min: 49.5
+    max: 51.5
 
   contigs_500bp_or_longer:
     max: 300
